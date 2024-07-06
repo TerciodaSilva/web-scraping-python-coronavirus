@@ -14,6 +14,7 @@ def get_pre_vaccination_data():
     '''SELECT 
         round(AVG(c."Death Rate"), 2) as meanDeathRate, 
         round(AVG(c."New Recoveries"), 2) as meanNewRecoveries, 
+        round(AVG(c."Daily Cases"), 2) as meanDailyCases,
         round(AVG(c."Daily Deaths"), 2) as meanDailyDeaths 
       FROM clusterized_covid c 
       WHERE c.Vaccination = 0''', cnx).to_dict(orient='records')[0]
@@ -30,6 +31,7 @@ def get_post_vaccination_data():
     '''SELECT 
         round(AVG(c."Death Rate"), 2) as meanDeathRate, 
         round(AVG(c."New Recoveries"), 2) as meanNewRecoveries, 
+        round(AVG(c."Daily Cases"), 2) as meanDailyCases,
         round(AVG(c."Daily Deaths"), 2) as meanDailyDeaths 
       FROM clusterized_covid c 
       WHERE c.Vaccination = 1''', cnx).to_dict(orient='records')[0]
@@ -73,8 +75,51 @@ def get_overall_data():
     '''SELECT 
         round(AVG(c."Death Rate"), 2) as meanDeathRate, 
         round(AVG(c."New Recoveries"), 2) as meanNewRecoveries, 
+        round(AVG(c."Daily Cases"), 2) as meanDailyCases,
         round(AVG(c."Daily Deaths"), 2) as meanDailyDeaths 
       FROM clusterized_covid c''', cnx).to_dict(orient='records')[0]
+
+  cnx.close()
+
+  return data
+
+
+@app.route("/covid/deaths/timeseries", methods=['GET'])
+def get_deaths_timeseries():
+  cnx = sqlite3.connect('clusterized_covid.db')
+  data = pd.read_sql_query(
+    '''SELECT 
+        c."Date", 
+        c."Deaths" 
+      FROM clusterized_covid c''', cnx).to_json(orient='records')
+
+  cnx.close()
+
+  return data
+
+
+@app.route("/covid/cases/timeseries", methods=['GET'])
+def get_cases_timeseries():
+  cnx = sqlite3.connect('clusterized_covid.db')
+  data = pd.read_sql_query(
+    '''SELECT 
+        c."Date", 
+        c."Cases" 
+      FROM clusterized_covid c''', cnx).to_json(orient='records')
+
+  cnx.close()
+
+  return data
+
+
+@app.route("/covid/recoveries/timeseries", methods=['GET'])
+def get_recoveries_timeseries():
+  cnx = sqlite3.connect('clusterized_covid.db')
+  data = pd.read_sql_query(
+    '''SELECT 
+        c."Date", 
+        c."New Recoveries" 
+      FROM clusterized_covid c''', cnx).to_json(orient='records')
 
   cnx.close()
 
