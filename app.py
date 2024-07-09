@@ -4,7 +4,7 @@ import sqlite3
 import pandas as pd
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, origins=["http://localhost:5174"])
 
 
 @app.route('/covid/pre-vaccination', methods=['GET'])
@@ -79,3 +79,6 @@ def get_overall_data():
   cnx.close()
 
   return data
+
+if __name__ == '__main__':
+  app.run(host="127.0.0.1", port=3000, debug=True)
